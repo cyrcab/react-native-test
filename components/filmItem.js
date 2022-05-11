@@ -1,13 +1,21 @@
-import { View, Text, StyleSheet } from 'react-native';
-import {REACT_APP_API_KEY} from '@env';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { getImgFromApi } from '../TMDBApi';
 
 const FilmItem = ({ film }) => {
-  console.log(film);
-  const key = REACT_APP_API_KEY;
-  console.log(key);
   return (
     <View style={styles.filmItemContainer}>
-      <View style={styles.filmImg} />
+      <View style={styles.filmImg}>
+        {film.poster_path ? (
+          <Image
+            style={styles.image}
+            source={{
+              uri: getImgFromApi(film.poster_path),
+            }}
+          />
+        ) : (
+          <Text>No image found</Text>
+        )}
+      </View>
       <View style={styles.contentContainer}>
         <View style={styles.header}>
           <Text style={{ fontSize: 18, flex: 1, fontWeight: '700' }}>{film.title}</Text>
@@ -48,6 +56,9 @@ const styles = StyleSheet.create({
   filmImg: {
     flex: 1,
     backgroundColor: 'grey',
+  },
+  image: {
+    flex: 1,
   },
   contentContainer: {
     flex: 2,
