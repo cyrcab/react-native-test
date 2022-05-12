@@ -1,19 +1,35 @@
-import { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+import { useState } from 'react';
+import {
+  View,
+  TextInput,
+  Button,
+  StyleSheet,
+  FlatList,
+  Text,
+} from 'react-native';
 import FilmItem from './filmItem';
 
-import { getFilmFromAPiWithSearchedText } from '../TMDBApi';
+import { fetchFilms } from '../TMDBApi';
 
 const Search = () => {
   const [listOfFilm, setListOfFilm] = useState([]);
   const [filmSearched, setFilmSearched] = useState('');
+  const [totalPage, setTotalPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
 
-  const handleLoadFilm = (filmToSearch) => {
-    getFilmFromAPiWithSearchedText(filmToSearch).then((data) => setListOfFilm(data.results));
-    setFilmSearched('');
+  const handleLoadFilm = () => {
+    if (filmSearched.length > 0) {
+      fetchFilms(filmSearched, currentPage + 1).then((data) => {
+        setCurrentPage(currentPage + 1);
+        setListOfFilm([...listOfFilm, ...data.results]);
+        setTotalPage(data.total_pages);
+      });
+    } else {
+      setTotalPage(0);
+      setCurrentPage(0);
+      setListOfFilm([]);
+    }
   };
-
-  console.log(listOfFilm);
 
   return (
     <View style={styles.container}>
@@ -21,15 +37,23 @@ const Search = () => {
         placeholder="Titre du film"
         style={styles.input}
         value={filmSearched}
-        onSubmitEditing={() => handleLoadFilm(filmSearched)}
+        onSubmitEditing={() => handleLoadFilm()}
         onChangeText={setFilmSearched}
         clearButtonMode={'always'}
       />
-      <Button title="Rechercher" onPress={() => handleLoadFilm(filmSearched)} />
+      <Button title="Rechercher" onPress={() => handleLoadFilm()} />
+      <Text>
+        Vous êtes à la page {currentPage} / {totalPage}
+      </Text>
       <FlatList
         data={listOfFilm}
         renderItem={({ item }) => <FilmItem film={item} />}
         keyExtractor={(item) => item.id.toString()}
+        onEndReached={() => {
+          if (currentPage < totalPage) {
+            handleLoadFilm();
+          }
+        }}
       />
     </View>
   );

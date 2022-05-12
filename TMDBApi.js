@@ -1,12 +1,9 @@
 import axios from 'axios';
 import { REACT_APP_API_KEY } from '@env';
 
-export async function getFilmFromAPiWithSearchedText(text) {
+export async function fetchFilms(text, page) {
   const url =
-    'https://api.themoviedb.org/3/search/movie?api_key=' +
-    REACT_APP_API_KEY +
-    '&language=fr&query=' +
-    text;
+    `https://api.themoviedb.org/3/search/movie?api_key=${REACT_APP_API_KEY}&language=fr&query=${text}&page=${page}`;
 
   return axios(url)
     .then((res) => res.data)
